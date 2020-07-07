@@ -1,5 +1,5 @@
 'use strict';
-let weatherArr =[];
+
 const express = require('express');
 
 //CORS = Cross Origin Resource Sharing
@@ -42,8 +42,10 @@ function Location (city,locData){
 server.get('/Weather',(req,res) =>{
     const wetherData = require('./data/ weather.json');
     console.log(wetherData.data[0]);
+    var weatherArr =[];
     wetherData.data.forEach((value,idx) => {
         const weather = new Weather (value);
+        weatherArr.push(weather);
     });
     res.send(weatherArr);
 });
@@ -63,7 +65,6 @@ server.get('/Weather',(req,res) =>{
 function Weather(value){
     this.forecast = value.weather.description;
     this.time =new Date(value.datetime).toDateString();
-    weatherArr.push(this);
 }
 
 server.get('/', (req, res) => {
