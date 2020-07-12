@@ -10,8 +10,8 @@ const cors = require('cors');
 
 const superagent = require('superagent');
 
-const yelp = require('yelp-fusion');
-const client = yelp.client(process.env.YELP_API_KEY);
+// const yelp = require('yelp-fusion');
+// const client = yelp.client(process.env.YELP_API_KEY);
 
 const pg = require('pg');
 const { move } = require('superagent');
@@ -157,40 +157,50 @@ function Resturants(value) {
 
 server.get(`/yelp`, (req, res) => {
     let city = req.query.search_query;
-    const searchRequest = {
-        term: 'Food',
-        location: city
-    };
-    client.search(searchRequest)
+    let url = `https://api.yelp.com/v3/businesses/search?location=${city}`
+
+    superagent.get(url)
+        .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
         .then(data => {
-            let resArr = data.jsonBody.businesses.map((vlue, idx) => {
+            let resArr = data.body.businesses.map((vlue, idx) => {
                 let newRes = new Resturants(vlue);
                 return newRes;
             })
-            console.log(resArr);
-            res.status(200).json(data.jsonBody.businesses);
-        })
-        .catch(e => {
-            console.log(e);
+
+            res.status(200).json(resArr);
+            // const searchRequest = {
+            //     term: 'Food',
+            //     location: city
+            // };
+            // client.search(searchRequest)
+            //     .then(data => {
+            //         let resArr = data.jsonBody.businesses.map((vlue, idx) => {
+            //             let newRes = new Resturants(vlue);
+            //             return newRes;
+            //         })
+            //         console.log(resArr);
+            //     })
+            //     .catch(e => {
+            //         console.log(e);
+                });
         });
-});
 
 
-server.get('/', (req, res) => {
+    server.get('/', (req, res) => {
 
-    res.status(200).send('you did great job');
-});
-
-server.get('*', (req, res) => {
-    res.status(404).send('Not Found');
-});
-
-server.use((error, req, res) => {
-    res.status(500).send(error);
-});
-clint.connect()
-    .then(() => {
-        server.listen(PORT, () => {
-            console.log(`listning on PORT ${PORT}`);
-        })
+        res.status(200).send('you did great job');
     });
+
+    server.get('*', (req, res) => {
+        res.status(404).send('Not Found');
+    });
+
+    server.use((error, req, res) => {
+        res.status(500).send(error);
+    });
+    clint.connect()
+        .then(() => {
+            server.listen(PORT, () => {
+                console.log(`listning on PORT ${PORT}`);
+            })
+        });
